@@ -1,0 +1,61 @@
+#include <iostream>
+#include <algorithm>
+#include <random>
+#include <vector>
+
+// Função para imprimir o tabuleiro atual
+void printBoard(const std::vector<char>& board) {
+    for (int i = 0; i < board.size(); i++) {
+        std::cout << board[i] << " ";
+        if ((i+1) % 4 == 0) {
+            std::cout << std::endl;
+        }
+    }
+}
+
+int main() {
+    std::vector<char> board = {'A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'};
+
+    // Embaralha as peças do tabuleiro
+    std::shuffle(board.begin(), board.end(), std::mt19937(std::random_device()()));
+
+    std::vector<bool> matched(board.size(), false); // Inicialmente, nenhuma peça está marcada como já combinada
+    std::vector<bool> revealed(board.size(), false); // Inicialmente, nenhuma peça está virada para cima
+    int pairsFound = 0; // Inicialmente, nenhum par foi encontrado
+
+    while (pairsFound < board.size()/2) {
+        printBoard(board);
+        std::cout << "Escolha uma posição (0-15): ";
+        int choice;
+        std::cin >> choice;
+
+        if (choice < 0 || choice >= board.size() || revealed[choice]) {
+            std::cout << "Posição inválida ou já escolhida!" << std::endl;
+            continue;
+        }
+
+        revealed[choice] = true; // Vira a peça escolhida para cima
+
+        int otherChoice;
+        do {
+            std::cout << "Escolha outra posição (0-15): ";
+            std::cin >> otherChoice;
+        } while (otherChoice < 0 || otherChoice >= board.size() || revealed[otherChoice]);
+
+        revealed[otherChoice] = true; // Vira a segunda peça escolhida para cima
+
+        if (board[choice] == board[otherChoice]) {
+            std::cout << "Você encontrou um par!" << std::endl;
+            matched[choice] = true;
+            matched[otherChoice] = true;
+            pairsFound++;
+        } else {
+            std::cout << "Não foi um par." << std::endl;
+            revealed[choice] = false; // Volta a primeira peça para baixo
+            revealed[otherChoice] = false; // Volta a segunda peça para baixo
+        }
+    }
+
+    std::cout << "Você ganhou!" << std::endl;
+
+    return 0;
